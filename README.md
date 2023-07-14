@@ -138,3 +138,8 @@ We would like to thank the following people for making this project possible:
 [MuJoco Menagerie](https://github.com/deepmind/mujoco_menagerie)'s license can be found [here](https://github.com/deepmind/mujoco_menagerie/blob/main/LICENSE). Soundfont licensing information can be found [here](docs/soundfonts.md). MIDI licensing information can be found [here](docs/dataset.md). All other code is licensed under an [Apache-2.0 License](LICENSE).
 
 This is not an officially supported Google product.
+
+## Other dependancies
+clone https://github.com/ikostrikov/dmcgym
+comment out `gym[mujoco] >= 0.21.0, < 0.24.1` in `requriments.txt`
+`pip install -e dmcgym`
