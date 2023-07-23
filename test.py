@@ -5,7 +5,7 @@ import sys
 import numpy as np
 from robopianist.suite.tasks import self_actuated_piano
 from robopianist.suite.tasks import piano_with_shadow_hands
-from dm_env_wrappers import CanonicalSpecWrapper
+from dm_env_wrappers import CanonicalSpecWrapper, ConcatObservationWrapper
 from robopianist.wrappers import PianoSoundVideoWrapper, MidiEvaluationWrapper
 from robopianist import music
 from mujoco_utils import composer_utils
@@ -53,6 +53,7 @@ def make_env(song: str = 'TwinkleTwinkleRousseau',
         #         camera_id=None, # "piano/back",
         #         record_dir="./videos",
         #     )
+        env = ConcatObservationWrapper(env)
         env = CanonicalSpecWrapper(env)
         # NOTE: modify DMCGYM to return music metrics
         env = MidiEvaluationWrapper(env)
@@ -68,14 +69,14 @@ def make_env(song: str = 'TwinkleTwinkleRousseau',
 
 if __name__ == '__main__':
     env = make_env('TwinkleTwinkleRousseau', 0, False)()
-
-    from stable_baselines3 import PPO
+    # from stable_baselines3 import PPO
+    from sbx import DroQ
 
     tmp_path = "./logs/sb3_log/"
     # set up logger
     new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
 
-    model = PPO("MultiInputPolicy", env, verbose=1)
+    model = DroQ("MlpPolicy", env, verbose=1)
     model.set_logger(new_logger)
     model.learn(total_timesteps=1_000_000, progress_bar=True)
-    model.save('twinkle_test_2')
+    model.save('twinkle_test_3')

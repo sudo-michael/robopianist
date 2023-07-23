@@ -143,3 +143,12 @@ This is not an officially supported Google product.
 clone https://github.com/ikostrikov/dmcgym
 comment out `gym[mujoco] >= 0.21.0, < 0.24.1` in `requriments.txt`
 `pip install -e dmcgym`
+
+pip install --upgrade "jax[cuda11_local]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+
+pip install sbx-rl
+
+
+might need to update `ptax` `conda install cuda -c nvidia`
+
+pip install -U jaxlib optax
