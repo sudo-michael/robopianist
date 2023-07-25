@@ -27,7 +27,8 @@ song = 'TwinkleTwinkleRousseau'
 env = make_env(song, 0, True)()
 
 model = PPO("MultiInputPolicy", env, learning_rate=lr, batch_size=batch_size)
-model = PPO.load(f"ppo_{song}")
+# model = PPO.load(f"ppo_{song}")
+model = PPO.load('models/twinkle_test_2')
 print("Model is loaded!")
 
 obs = env.reset()
