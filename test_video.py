@@ -5,7 +5,7 @@ import sys
 import numpy as np
 from robopianist.suite.tasks import self_actuated_piano
 from robopianist.suite.tasks import piano_with_shadow_hands
-from dm_env_wrappers import CanonicalSpecWrapper
+from dm_env_wrappers import CanonicalSpecWrapper, ConcatObservationWrapper
 from robopianist.wrappers import PianoSoundVideoWrapper, MidiEvaluationWrapper
 from robopianist import music
 from mujoco_utils import composer_utils
@@ -15,6 +15,8 @@ import shimmy
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.logger import configure
 from stable_baselines3 import PPO
+from sbx import DroQ
+
 
 
 def make_env(song: str = 'TwinkleTwinkleRousseau', 
@@ -47,21 +49,22 @@ def make_env(song: str = 'TwinkleTwinkleRousseau',
             task=task, strip_singleton_obs_buffer_dim=True, recompile_physics=False
         )
 
-        # if sound:
-        #     env = PianoSoundVideoWrapper(
-        #         env,
-        #         record_every=100,
-        #         camera_id=None, # "piano/back",
-        #         record_dir="./videos",
-        #     )
+        env = ConcatObservationWrapper(env)
         env = CanonicalSpecWrapper(env)
-        # NOTE: modify DMCGYM to return music metrics
+        if sound:
+            env = PianoSoundVideoWrapper(
+            env,
+            record_every=1,
+            camera_id=None, # "piano/back",
+            record_dir="./videos",
+            )
         env = MidiEvaluationWrapper(env)
         env = DMCGYM(env)
         env = shimmy.GymV21CompatibilityV0(env=env)
-        env = Monitor(env, filename='test_monitor', info_keywords=('precision', 'recall', 'f1', 'sustain_precision', 'sustain_recall', 'sustain_f1'))
+        env = Monitor(env, filename=f'{song}', info_keywords=('precision', 'recall', 'f1', 'sustain_precision', 'sustain_recall', 'sustain_f1'))
 
         return env
+
     # set_random_seed(seed)
 
     return _init
@@ -74,22 +77,29 @@ if __name__ == '__main__':
     batch_size = 256
     # n_epochs = # 
     gamma = 0.99
-    song = 'TwinkleTwinkleRousseau'
-    env = make_env(song, 0, False)()
+    
+    # song = 'TwinkleTwinkleRousseau'
+    # env = make_env(song, 0, False)()
+    # model = PPO("MultiInputPolicy", env, learning_rate=lr, batch_size=batch_size)
+    # model = PPO.load('models/ppo/twinkle_test_2')
 
-    model = PPO("MultiInputPolicy", env, learning_rate=lr, batch_size=batch_size)
-    model = PPO.load('models/ppo/twinkle_test_2')
+    song = 'FantaisieImpromptu'
+    env = make_env(song, 0, False)()
+    # tmp_path = f"./logs/sbx/droq/{song}"
+    model = DroQ("MlpPolicy", env, verbose=1)
+    model = DroQ.load('models/sbx/droq/FantaisieImpromptu')# models/sbx/droq/FantaisieImpromptu.zip f'models/sbx/droq/{song}'
+
     print("Model is loaded!")
 
     obs = env.reset()
     print(obs)
     action, _states = model.predict(obs)
-    # rewards = 0.0
-    # done = False
-    # while not done:
-    #     action, _states = model.predict(obs)
-    #     obs, reward, done, info = env.step(action)
-    #     rewards += reward
-    #     env.render("human")
+    rewards = 0.0
+    done = False
+    while not done:
+        action, _states = model.predict(obs)
+        obs, reward, done, info = env.step(action)
+        rewards += reward
+        env.render("human")
 
-    # print(f"The final rewards is {rewards}.")
+    print(f"The final rewards is {rewards}.")

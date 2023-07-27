@@ -1,4 +1,5 @@
 import safety_gymnasium
+import omnisafe
 # originally from https://github.com/RolandZhu/robopianist
 import os
 import sys
