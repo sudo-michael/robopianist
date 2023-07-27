@@ -1,80 +1,44 @@
 # originally from https://github.com/RolandZhu/robopianist
-import os
-import sys
 
-import numpy as np
-from robopianist.suite.tasks import self_actuated_piano
-from robopianist.suite.tasks import piano_with_shadow_hands
-from dm_env_wrappers import CanonicalSpecWrapper, ConcatObservationWrapper
-from robopianist.wrappers import PianoSoundVideoWrapper, MidiEvaluationWrapper
-from robopianist import music
-from mujoco_utils import composer_utils
-import dm_env
-from dmcgym import DMCGYM
-import shimmy
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.logger import configure
 from sbx import DroQ
+from train import make_env
 
-
-def make_env(song: str = 'TwinkleTwinkleRousseau', 
-             seed: int = 0,
-             sound: bool = False,
-             log_dir='./logs'):
-    """
-    Utility function for multiprocessed env.
-    :param song: the name of the song
-    :param seed: the inital seed for RNG
-    """
-    def _init():
-        task = piano_with_shadow_hands.PianoWithShadowHands(
-            change_color_on_activation=True,
-            midi=music.load(song),
-            trim_silence=True,
-            control_timestep=0.05,
-            gravity_compensation=True,
-            primitive_fingertip_collisions=False,
-            reduced_action_space=False,
-            n_steps_lookahead=10,
-            disable_fingering_reward=False,
-            disable_forearm_reward=False,
-            disable_colorization=False,
-            disable_hand_collisions=False,
-            attachment_yaw=0.0,
-        )
-
-        env = composer_utils.Environment(
-            task=task, strip_singleton_obs_buffer_dim=True, recompile_physics=False
-        )
-
-        env = ConcatObservationWrapper(env)
-        env = CanonicalSpecWrapper(env)
-        if sound:
-            env = PianoSoundVideoWrapper(
-            env,
-            record_every=1,
-            camera_id=None, # "piano/back",
-            record_dir="./videos",
-            )
-        env = MidiEvaluationWrapper(env)
-        env = DMCGYM(env)
-        env = shimmy.GymV21CompatibilityV0(env=env)
-        env = Monitor(env, filename=f'{song}', info_keywords=('precision', 'recall', 'f1', 'sustain_precision', 'sustain_recall', 'sustain_f1'))
-
-        return env
-
-    # set_random_seed(seed)
-
-    return _init
 
 if __name__ == '__main__':
-    song = 'FantaisieImpromptu'
+    # song = 'FantaisieImpromptu'
+    # song = 'LaCampanella'
+    song = 'CMajorScaleTwoHands'
+    # song = 'TwinkleTwinkleRousseau'
     env = make_env(song, 0, False)()
-    tmp_path = f"./logs/sbx/droq/{song}"
+
     # setup logger
+    tmp_path = f"./logs/sbx/droq/{song}"
     new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
+
     # setup model
     model = DroQ("MlpPolicy", env, verbose=1)
     model.set_logger(new_logger)
-    model.learn(total_timesteps=1_000_000, progress_bar=True)
-    model.save(f'models/sbx/droq/{song}')
+    model.learn(total_timesteps=10_000, progress_bar=True)
+    model.save(f'models/sbx/droq/{song}_10k')
+
+    del model
+
+    env2 = make_env(song, 0, True)()
+    model = DroQ.load(f'models/sbx/droq/{song}_10k', env=env)
+    print("The model is loaded!")
+
+    # obs = env2.reset()
+    # print(obs)
+    # action, _states = model.predict(obs)
+    # rewards = 0.0
+    # done = False
+    # while not done:
+    #     action, _states = model.predict(obs)
+    #     obs, reward, done, truncated, info = env2.step(action)
+    #     rewards += reward
+    #     # env2.render("human")
+
+    # print(f"The final rewards is {rewards}.")
+

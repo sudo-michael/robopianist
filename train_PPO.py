@@ -13,6 +13,7 @@ import dm_env
 from utilities import play_video, make_env, trans
 import os
 from datetime import datetime
+from stable_baselines3.common.logger import configure
 from stable_baselines3 import PPO
 
 ################################## set device ##################################
@@ -48,7 +49,11 @@ gamma = 0.99
 
 #####################################################
 ################ model setup #################
+tmp_path = f"./logs/sb3/ppo/{song}"
+# setup logger
+new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
+    
 model = PPO("MultiInputPolicy", env, learning_rate=lr, batch_size=batch_size)
 model.learn(total_timesteps=1e6)
-model.save(f"ppo_{song}")
+model.save(f"models/sb3/ppo/{song}")
 
