@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     del model
 
-    env2 = make_env(song, 0, True)()
+    # env2 = make_env(song, 0, True)()
     model = DroQ.load(f'models/sbx/droq/{song}_10k', env=env)
     print("The model is loaded!")
 
