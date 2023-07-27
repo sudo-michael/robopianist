@@ -57,7 +57,7 @@ class Synthesizer:
         self._synth.program_select(_CHANNEL, soundfont_id, _BANK, _PROGRAM)
 
     def start(self) -> None:
-        self._synth.start()
+        self._synth.start(driver="alsa", midi_driver="alsa_seq")
 
     def stop(self) -> None:
         self._synth.delete()

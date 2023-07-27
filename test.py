@@ -6,7 +6,7 @@ import numpy as np
 from robopianist.suite.tasks import self_actuated_piano
 from robopianist.suite.tasks import piano_with_shadow_hands
 from dm_env_wrappers import CanonicalSpecWrapper, ConcatObservationWrapper
-from robopianist.wrappers import PianoSoundVideoWrapper, MidiEvaluationWrapper
+from robopianist.wrappers import PianoSoundVideoWrapper, MidiEvaluationWrapper, SafeEnvironmentWrapper
 from robopianist import music
 from mujoco_utils import composer_utils
 import dm_env
@@ -16,7 +16,7 @@ from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.logger import configure
 
 
-def make_env(song: str = 'TwinkleTwinkleRousseau', 
+def make_env(song: str = 'TwinkleTwinkleRoussea2u',
              seed: int = 0,
              sound: bool = False,
              log_dir='./logs'):
@@ -46,20 +46,58 @@ def make_env(song: str = 'TwinkleTwinkleRousseau',
             task=task, strip_singleton_obs_buffer_dim=True, recompile_physics=False
         )
 
-        # if sound:
-        #     env = PianoSoundVideoWrapper(
-        #         env,
-        #         record_every=100,
-        #         camera_id=None, # "piano/back",
-        #         record_dir="./videos",
-        #     )
         env = ConcatObservationWrapper(env)
         env = CanonicalSpecWrapper(env)
         # NOTE: modify DMCGYM to return music metrics
         env = MidiEvaluationWrapper(env)
         env = DMCGYM(env)
         env = shimmy.GymV21CompatibilityV0(env=env)
-        env = Monitor(env, filename='test_monitor', info_keywords=('precision', 'recall', 'f1', 'sustain_precision', 'sustain_recall', 'sustain_f1'))
+        env = Monitor(env, filename='LaCampanella', info_keywords=('precision', 'recall', 'f1', 'sustain_precision', 'sustain_recall', 'sustain_f1'))
+
+        return env
+
+    # set_random_seed(seed)
+
+    return _init
+
+def make_safe_env(song: str = 'TwinkleTwinkleRoussea2u',
+             seed: int = 0,
+             sound: bool = False,
+             log_dir='./logs'):
+    """
+    Utility function for multiprocessed env.
+    :param song: the name of the song
+    :param seed: the inital seed for RNG
+    """
+    def _init():
+        task = piano_with_shadow_hands.PianoWithShadowHands(
+            change_color_on_activation=True,
+            midi=music.load(song),
+            trim_silence=True,
+            control_timestep=0.05,
+            gravity_compensation=True,
+            primitive_fingertip_collisions=False,
+            reduced_action_space=False,
+            n_steps_lookahead=10,
+            disable_fingering_reward=False,
+            disable_forearm_reward=False,
+            disable_colorization=False,
+            disable_hand_collisions=False,
+            attachment_yaw=0.0,
+            use_safe_reward=True,
+        )
+
+        env = SafeEnvironmentWrapper(
+            task=task, strip_singleton_obs_buffer_dim=True, recompile_physics=False
+        )
+
+        env = ConcatObservationWrapper(env)
+        env = CanonicalSpecWrapper(env)
+        # NOTE: modify DMCGYM to return music metrics
+        env = MidiEvaluationWrapper(env)
+        env = DMCGYM(env)
+        env = shimmy.GymV21CompatibilityV0(env=env)
+        env = Monitor(env, filename='LaCampanella', info_keywords=('precision', 'recall', 'f1', 'sustain_precision', 'sustain_recall', 'sustain_f1'))
 
         return env
 
@@ -68,7 +106,11 @@ def make_env(song: str = 'TwinkleTwinkleRousseau',
     return _init
 
 if __name__ == '__main__':
-    env = make_env('TwinkleTwinkleRousseau', 0, False)()
+    env = make_safe_env('LaCampanella', 0, False)()
+
+    env.reset()
+    env.step(env.action_space.sample())
+
     # from stable_baselines3 import PPO
     from sbx import DroQ
 
@@ -79,4 +121,4 @@ if __name__ == '__main__':
     model = DroQ("MlpPolicy", env, verbose=1)
     model.set_logger(new_logger)
     model.learn(total_timesteps=1_000_000, progress_bar=True)
-    model.save('twinkle_test_3')
+    model.save('la_camp')

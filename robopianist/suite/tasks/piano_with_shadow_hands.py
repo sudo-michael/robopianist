@@ -61,6 +61,7 @@ class PianoWithShadowHands(base.PianoTask):
         augmentations: Optional[Sequence[base_variation.Variation]] = None,
         energy_penalty_coef: float = _ENERGY_PENALTY_COEF,
         randomize_hand_positions: bool = False,
+        use_safe_reward: bool = False,
         **kwargs,
     ) -> None:
         """Task constructor.
@@ -115,6 +116,8 @@ class PianoWithShadowHands(base.PianoTask):
         self._energy_penalty_coef = energy_penalty_coef
         self._randomize_hand_positions = randomize_hand_positions
 
+        self._use_safe_reward = use_safe_reward
+
         if not disable_fingering_reward and not disable_colorization:
             self._colorize_fingertips()
         if disable_hand_collisions:
@@ -125,11 +128,21 @@ class PianoWithShadowHands(base.PianoTask):
         self._set_rewards()
 
     def _set_rewards(self) -> None:
-        self._reward_fn = composite_reward.CompositeReward(
-            key_press_reward=self._compute_key_press_reward,
-            sustain_reward=self._compute_sustain_reward,
-            energy_reward=self._compute_energy_reward,
-        )
+        if not self._use_safe_reward:
+            self._reward_fn = composite_reward.CompositeReward(
+                key_press_reward=self._compute_key_press_reward,
+                sustain_reward=self._compute_sustain_reward,
+                energy_reward=self._compute_energy_reward,
+            )
+        else:
+            self._reward_fn = composite_reward.CompositeReward(
+                key_press_reward=self._compute_key_press_reward_2,
+                sustain_reward=self._compute_sustain_reward,
+                energy_reward=self._compute_energy_reward,
+            )
+
+            self._cost_fn = self._compute_key_press_cost
+    
         if not self._disable_fingering_reward:
             self._reward_fn.add("fingering_reward", self._compute_fingering_reward)
         if not self._disable_forearm_reward:
@@ -199,6 +212,9 @@ class PianoWithShadowHands(base.PianoTask):
 
     def get_reward(self, physics: mjcf.Physics) -> float:
         return self._reward_fn.compute(physics)
+
+    def get_cost(self, physics: mjcf.Physics) -> float:
+        return self._cost_fn(physics)
 
     def get_discount(self, physics: mjcf.Physics) -> float:
         del physics  # Unused.
@@ -290,6 +306,32 @@ class PianoWithShadowHands(base.PianoTask):
         off = np.flatnonzero(1 - self._goal_current[:-1])
         rew += 0.5 * (1 - float(self.piano.activation[off].any()))
         return rew
+
+    def _compute_key_press_reward_2(self, physics: mjcf.Physics) -> float:
+        """Reward for pressing the right keys at the right time."""
+        del physics  # Unused.
+        on = np.flatnonzero(self._goal_current[:-1])
+        rew = 0.0
+        # It's possible we have no keys to press at this timestep, so we need to check
+        # that `on` is not empty.
+        if on.size > 0:
+            actual = np.array(self.piano.state / self.piano._qpos_range[:, 1])
+            rews = tolerance(
+                self._goal_current[:-1][on] - actual[on],
+                bounds=(0, _KEY_CLOSE_ENOUGH_TO_PRESSED),
+                margin=(_KEY_CLOSE_ENOUGH_TO_PRESSED * 10),
+                sigmoid="gaussian",
+            )
+            rew += rews.mean()
+        return rew
+
+    def _compute_key_press_cost(self, physics: mjcf.Physics) -> float:
+        """Cost for pressing the wrong keys at the wrong time."""
+        del physics  # Unused.
+        # If there are any false positives, incurr some cost of 1.0
+        off = np.flatnonzero(1 - self._goal_current[:-1])
+        cost = float(self.piano.activation[off].any())
+        return cost
 
     def _compute_fingering_reward(self, physics: mjcf.Physics) -> float:
         """Reward for minimizing the distance between the fingers and the keys."""

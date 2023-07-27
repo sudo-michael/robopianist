@@ -14,6 +14,7 @@
 
 from robopianist.wrappers.evaluation import MidiEvaluationWrapper
 from robopianist.wrappers.sound import PianoSoundVideoWrapper
+from robopianist.wrappers.safe_wrapper import SafeEnvironmentWrapper
 
 __all__ = [
     "MidiEvaluationWrapper",
