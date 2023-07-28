@@ -50,7 +50,7 @@ def make_env(song: str = 'TwinkleTwinkleRousseau',
             env,
             record_every=1,
             camera_id=None, # "piano/back",
-            record_dir="./videos",
+            record_dir=f"./videos/{song}",
             )
         env = MidiEvaluationWrapper(env)
         env = DMCGYM(env)

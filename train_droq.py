@@ -9,24 +9,25 @@ from train import make_env
 if __name__ == '__main__':
     # song = 'FantaisieImpromptu'
     # song = 'LaCampanella'
-    song = 'CMajorScaleTwoHands'
-    # song = 'TwinkleTwinkleRousseau'
+    # song = 'CMajorScaleTwoHands'
+    song = 'TwinkleTwinkleRousseau'
+    timestep = 1e6
     env = make_env(song, 0, False)()
 
     # setup logger
-    tmp_path = f"./logs/sbx/droq/{song}"
+    tmp_path = f"./logs/sbx/droq/{song}{timestep}"
     new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
 
     # setup model
     model = DroQ("MlpPolicy", env, verbose=1)
     model.set_logger(new_logger)
-    model.learn(total_timesteps=10_000, progress_bar=True)
-    model.save(f'models/sbx/droq/{song}_10k')
+    model.learn(total_timesteps=timestep, progress_bar=True)
+    model.save(f'models/sbx/droq/{song}_{timestep}')
 
     del model
 
     # env2 = make_env(song, 0, True)()
-    model = DroQ.load(f'models/sbx/droq/{song}_10k', env=env)
+    model = DroQ.load(f'models/sbx/droq/{song}_{timestep}', env=env)
     print("The model is loaded!")
 
     # obs = env2.reset()
