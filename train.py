@@ -58,7 +58,7 @@ def make_env(song: str = 'TwinkleTwinkleRousseau',
         env = MidiEvaluationWrapper(env)
         env = DMCGYM(env)
         env = shimmy.GymV21CompatibilityV0(env=env)
-        env = Monitor(env, filename=f'{song}', info_keywords=('precision', 'recall', 'f1', 'sustain_precision', 'sustain_recall', 'sustain_f1'))
+        env = Monitor(env, filename=f'results/{song}_{timestep}', info_keywords=('precision', 'recall', 'f1', 'sustain_precision', 'sustain_recall', 'sustain_f1'))
 
         return env
 
@@ -66,11 +66,11 @@ def make_env(song: str = 'TwinkleTwinkleRousseau',
 
     return _init
 
-
-def make_env_test(song: str = 'TwinkleTwinkleRousseau', 
+def make_env_cl(song: str = 'TwinkleTwinkleRousseau', 
              seed: int = 0,
              sound: bool = False,
-             log_dir='./logs'):
+             log_dir='./logs',
+             timestep: int = 6e5):
     """
     Utility function for multiprocessed env.
     :param song: the name of the song
@@ -102,18 +102,19 @@ def make_env_test(song: str = 'TwinkleTwinkleRousseau',
         if sound:
             env = PianoSoundVideoWrapper(
             env,
-            record_every=1,
-            camera_id=None, # "piano/back",
-            record_dir="./videos",
+            record_every = 1,
+            camera_id = None, # "piano/back",
+            record_dir = f"./videos/cl/{song}",
+            song = song,
+            timestep = timestep
             )
         env = MidiEvaluationWrapper(env)
         env = DMCGYM(env)
         env = shimmy.GymV21CompatibilityV0(env=env)
-        env = Monitor(env, filename=f'{song}', info_keywords=('precision', 'recall', 'f1', 'sustain_precision', 'sustain_recall', 'sustain_f1'))
+        env = Monitor(env, filename=f'results/cl/{song}_{timestep}', info_keywords=('precision', 'recall', 'f1', 'sustain_precision', 'sustain_recall', 'sustain_f1'))
 
         return env
 
     # set_random_seed(seed)
 
     return _init
-

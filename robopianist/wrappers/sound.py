@@ -73,7 +73,7 @@ class PianoSoundVideoWrapper(DmControlVideoWrapper):
         waveform = self._synth.get_samples(midi_events)
 
         # Save waveform as mp3.
-        waveform_name = self._record_dir / f"{self._counter:05d}.mp3"
+        waveform_name = self._record_dir / f"{self._counter:05d}.mp3"  # self._record_dir / f"{self._counter:05d}.mp3"
         wf = wave.open(str(waveform_name), "wb")
         wf.setnchannels(1)
         wf.setsampwidth(2)
@@ -82,7 +82,7 @@ class PianoSoundVideoWrapper(DmControlVideoWrapper):
         wf.close()
 
         # Make a copy of the MP4 so that FFMPEG can overwrite it.
-        filename = self._record_dir / f"sbx_{self.song}_{self.timestep}.mp4"
+        filename = self._record_dir / f"{self._counter:05d}.mp4"
         temp_filename = self._record_dir / "temp.mp4"
         shutil.copyfile(filename, temp_filename)
         filename.unlink()
