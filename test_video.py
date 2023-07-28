@@ -15,11 +15,11 @@ if __name__ == '__main__':
     # model = PPO.load('models/ppo/twinkle_test_2')
 
     # song = 'FantaisieImpromptu'  
-    song = 'TwinkleTwinkleRousseau'
-    # song = 'LaCampanella'
+    # song = 'TwinkleTwinkleRousseau'
+    song = 'LaCampanella'
     # song = 'CMajorScaleTwoHands'
     timestep = 1e6
-    env = make_env(song, 0, True)()
+    env = make_env(song, 0, True, timestep=timestep)()
     obs = env.reset()
     # print(f"The shape of obs is {obs.shape}")
     print(f"The observation shape is {env.observation_space}")
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     # model = DroQ.load('models/sbx/droq/FantaisieImpromptu_10k', env=env)# models/sbx/droq/FantaisieImpromptu.zip f'models/sbx/droq/{song}'
     model = DroQ.load(f'models/sbx/droq/{song}_{timestep}', env=env)
 
-    print("Model is loaded!")
+    print("The model is loaded!")
 
     obs, _ = env.reset()
     print(f"The initial obs is {obs}")

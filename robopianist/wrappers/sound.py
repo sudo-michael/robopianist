@@ -36,6 +36,8 @@ class PianoSoundVideoWrapper(DmControlVideoWrapper):
         environment: dm_env.Environment,
         sf2_path: Path = SF2_PATH,
         sample_rate: int = consts.SAMPLING_RATE,
+        song: str = 'TwinkleTwinkleRousseau',
+        timestep: int = 1e6,
         **kwargs,
     ) -> None:
         # Check that this is an environment with a piano.
@@ -47,6 +49,8 @@ class PianoSoundVideoWrapper(DmControlVideoWrapper):
         self._midi_module: midi_module.MidiModule = environment.task.piano.midi_module
         self._sample_rate = sample_rate
         self._synth = synthesizer.Synthesizer(sf2_path, sample_rate)
+        self.song = song
+        self.timestep = timestep
 
     def _write_frames(self) -> None:
         super()._write_frames()
@@ -78,7 +82,7 @@ class PianoSoundVideoWrapper(DmControlVideoWrapper):
         wf.close()
 
         # Make a copy of the MP4 so that FFMPEG can overwrite it.
-        filename = self._record_dir / f"{self._counter:05d}.mp4"
+        filename = self._record_dir / f"sbx_{self.song}_{self.timestep}.mp4"
         temp_filename = self._record_dir / "temp.mp4"
         shutil.copyfile(filename, temp_filename)
         filename.unlink()

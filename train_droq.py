@@ -8,11 +8,11 @@ from train import make_env
 
 if __name__ == '__main__':
     # song = 'FantaisieImpromptu'
-    # song = 'LaCampanella'
+    song = 'LaCampanella'
     # song = 'CMajorScaleTwoHands'
-    song = 'TwinkleTwinkleRousseau'
+    # song = 'TwinkleTwinkleRousseau'
     timestep = 1e6
-    env = make_env(song, 0, False)()
+    env = make_env(song, 0, False, timestep=timestep)()
 
     # setup logger
     tmp_path = f"./logs/sbx/droq/{song}{timestep}"
@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     # env2 = make_env(song, 0, True)()
     model = DroQ.load(f'models/sbx/droq/{song}_{timestep}', env=env)
-    print("The model is loaded!")
+    print(f"The model is loaded at models/sbx/droq/{song}_{timestep}!")
 
     # obs = env2.reset()
     # print(obs)

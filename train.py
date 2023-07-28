@@ -16,7 +16,8 @@ import shimmy
 def make_env(song: str = 'TwinkleTwinkleRousseau', 
              seed: int = 0,
              sound: bool = False,
-             log_dir='./logs'):
+             log_dir='./logs',
+             timestep: int = 1e6):
     """
     Utility function for multiprocessed env.
     :param song: the name of the song
@@ -48,9 +49,11 @@ def make_env(song: str = 'TwinkleTwinkleRousseau',
         if sound:
             env = PianoSoundVideoWrapper(
             env,
-            record_every=1,
-            camera_id=None, # "piano/back",
-            record_dir=f"./videos/{song}",
+            record_every = 1,
+            camera_id = None, # "piano/back",
+            record_dir = f"./videos/{song}",
+            song = song,
+            timestep = timestep
             )
         env = MidiEvaluationWrapper(env)
         env = DMCGYM(env)
