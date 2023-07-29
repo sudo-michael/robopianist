@@ -11,7 +11,7 @@ from stable_baselines3.common.monitor import Monitor
 from sbx.wrappers.monitor import SafeMonitor
 from dmcgym import DMCGYM
 from dm_env_wrappers import CanonicalSpecWrapper, ConcatObservationWrapper
-from robopianist.wrappers import PianoSoundVideoWrapper, MidiEvaluationWrapper
+from robopianist.wrappers import PianoSoundVideoWrapper, MidiEvaluationWrapper, SafeEnvironmentWrapper
 import shimmy
 
 def make_env(song: str = 'TwinkleTwinkleRousseau', 
@@ -148,7 +148,7 @@ def make_safe_env(song: str = 'TwinkleTwinkleRousseau',
             use_safe_reward=True,
         )
 
-        env = composer_utils.Environment(
+        env = SafeEnvironmentWrapper(
             task=task, strip_singleton_obs_buffer_dim=True, recompile_physics=False
         )
 

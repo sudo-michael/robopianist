@@ -41,9 +41,9 @@ class SafeTimeStep(dm_env.TimeStep):
     # TODO(b/143116886): Use generics here when PyType supports them.
     step_type: Any
     reward: Any
-    cost: Any
     discount: Any
     observation: Any
+    cost: Any
 
     def first(self) -> bool:
         return self.step_type == StepType.FIRST
@@ -117,10 +117,10 @@ class CMDPEnvironment(composer.Environment):
         obs = self._observation_updater.get_observation()
 
         if not terminating:
-            return SafeTimeStep(dm_env.StepType.MID, reward, cost, discount, obs)
+            return SafeTimeStep(dm_env.StepType.MID, reward, discount, obs, cost)
         else:
             self._reset_next_step = True
-            return SafeTimeStep(dm_env.StepType.LAST, reward, cost, discount, obs)
+            return SafeTimeStep(dm_env.StepType.LAST, reward, discount, obs, cost)
 
 
 class SafeEnvironmentWrapper(CMDPEnvironment):
