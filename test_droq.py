@@ -1,4 +1,4 @@
-from train import make_env_test
+from train import make_env_test, make_env
 from sbx import DroQ
 
 
@@ -17,8 +17,11 @@ if __name__ == '__main__':
     # song = 'FantaisieImpromptu'  
     # song = 'TwinkleTwinkleRousseau'
     # song = 'LaCampanella'
-    song = 'CMajorScaleOneHand'
+    # song = 'CMajorScaleOneHand'
+    # song = 'JeTeVeux'
+    song = 'TheEntertainer'
     # song = 'CMajorScaleTwoHands'
+
     timestep = 1e6
     env = make_env_test(song, 0, True, timestep=timestep)()
     obs = env.reset()

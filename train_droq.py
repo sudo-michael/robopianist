@@ -12,8 +12,9 @@ if __name__ == '__main__':
     # song = 'CMajorScaleTwoHands'
     # song = 'TwinkleTwinkleRousseau'
     # song = 'CMajorScaleOneHand'
-    song = 'JeTeVeux'
-    timestep = 2e6
+    # song = 'JeTeVeux'
+    song = 'TheEntertainer'
+    timestep = 1e6
     env = make_env(song, 0, False, timestep=timestep)()
 
     # setup logger

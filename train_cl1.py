@@ -11,11 +11,12 @@ if __name__ == '__main__':
     song1 = 'CMajorScaleOneHand'
     song2 = 'CMajorScaleTwoHands'
     # song3 = 'LaCampanella'
-    song3 = 'JeTeVeux'
+    # song3 = 'JeTeVeux'
+    song3 = 'TheEntertainer'
     # song3 = 'TwinkleTwinkleRousseau'  # hard: song3> song2 > song1
     timestep1 = 4e5  # 2e5+2e5+6e5 = 1e6
-    timestep2 = 4e5
-    timestep3 = 6e5   #  song3 = 'TwinkleTwinkleRousseau'  # hard: song3> song2 > song1
+    timestep2 = 6e5
+    timestep3 = 1e6   #  song3 = 'TwinkleTwinkleRousseau'  # hard: song3> song2 > song1
     # timestep1 = 1e3  # 2e5+2e5+6e5 = 1e6
     # timestep2 = 1e3
     # timestep3 = 1e3
