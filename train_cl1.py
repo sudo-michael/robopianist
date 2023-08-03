@@ -8,7 +8,8 @@ from train import make_env_cl
 
 if __name__ == '__main__':
     # song = 'FantaisieImpromptu'
-    song1 = 'CMajorScaleOneHand'
+    song1 = 'TwinkleTwinkleRousseau'
+    # song1 = 'CMajorScaleOneHand'
     song2 = 'CMajorScaleTwoHands'
     # song3 = 'LaCampanella'
     # song3 = 'JeTeVeux'

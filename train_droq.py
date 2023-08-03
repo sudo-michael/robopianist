@@ -9,11 +9,11 @@ from train import make_env
 if __name__ == '__main__':
     # song = 'FantaisieImpromptu'
     # song = 'LaCampanella'
-    # song = 'CMajorScaleTwoHands'
+    song = 'CMajorScaleTwoHands'
     # song = 'TwinkleTwinkleRousseau'
     # song = 'CMajorScaleOneHand'
     # song = 'JeTeVeux'
-    song = 'TheEntertainer'
+    # song = 'TheEntertainer'
     timestep = 1e6
     env = make_env(song, 0, False, timestep=timestep)()
 
