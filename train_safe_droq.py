@@ -6,7 +6,7 @@ from train import make_safe_env
 
 
 if __name__ == '__main__':
-    song = 'TwinkleTwinkleRousseau'
+    song = 'JeTeVeux'
     timestep = 1e6
     env = make_safe_env(song, 0, False, timestep=timestep)()
     

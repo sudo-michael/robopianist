@@ -15,7 +15,6 @@ from robopianist.wrappers import PianoSoundVideoWrapper, MidiEvaluationWrapper, 
 import shimmy
 
 from sbx.wrappers.monitor import SafeMonitor
-
 def make_safe_env(song: str = 'TwinkleTwinkleRousseau', 
              seed: int = 0,
              sound: bool = False,
@@ -44,7 +43,7 @@ def make_safe_env(song: str = 'TwinkleTwinkleRousseau',
             use_safe_reward=True
         )
 
-        env = composer_utils.Environment(
+        env = SafeEnvironmentWrapper(
             task=task, strip_singleton_obs_buffer_dim=True, recompile_physics=False
         )
 
