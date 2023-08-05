@@ -3,12 +3,19 @@
 from stable_baselines3.common.logger import configure
 from sbx.droq.droqlag import DroQLag
 from train import make_safe_env
+import argparse
 
+def get_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--seed", type=int, default=1,
+        help="seed of the experiment")
+    return args
 
 if __name__ == '__main__':
-    song = 'JeTeVeux'
+    song = 'TwinkleTwinkleRousseau'
     timestep = 1e6
-    env = make_safe_env(song, 0, False, timestep=timestep)()
+    args = get_args()
+    env = make_safe_env(song, args.seed, False, timestep=timestep)()
     
 
     # setup logger
@@ -16,7 +23,7 @@ if __name__ == '__main__':
     new_logger = configure(tmp_path, ["stdout", "csv", "tensorboard"])
 
     # setup model
-    model = DroQLag("MlpPolicy", env, verbose=1)
+    model = DroQLag("MlpPolicy", env, verbose=1, seed=args.seed)
     model.set_logger(new_logger)
     model.learn(total_timesteps=timestep, progress_bar=True)
     # model.save(f'models/sbx/droqlag/{song}_{timestep}')
