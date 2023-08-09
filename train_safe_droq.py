@@ -5,17 +5,18 @@ from sbx.droq.droqlag import DroQLag
 from train import make_safe_env
 import argparse
 
-def get_args()
+def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, default=1,
         help="seed of the experiment")
+    args = parser.parse_args()
     return args
 
 if __name__ == '__main__':
-    song = 'TwinkleTwinkleRousseau'
+    song = 'TheEntertainer'
     timestep = 1e6
     args = get_args()
-    env = make_safe_env(song, args.seed, False, timestep=timestep)()
+    env = make_safe_env(song, algo="DroqLag", seed=args.seed, sound=False, timestep=timestep)()
     
 
     # setup logger
